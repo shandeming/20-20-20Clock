@@ -1,7 +1,6 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import React, { useState, useEffect, useMemo } from "react";
-
 class Status {
   static Work = new Status(1, "Work", 20 * 60);
   static ShortBreak = new Status(2, "Short Break", 20);
@@ -25,16 +24,12 @@ export default function Home() {
   const [time, setTime] = useState(20 * 60);
   const [isMounted, setIsMounted] = useState(false);
   const [isAlarmPlaying, setIsAlarmPlaying] = useState(false);
-  const [isRunning, setIsRunning] = useState(true); // State to track if the timer is running
+  const [isRunning, setIsRunning] = useState(false); // State to track if the timer is running
+  const alarm = useMemo(() => new Audio("/music/alarmSound.wav"), []);
   useEffect(() => {
     setIsMounted(true);
   }, []);
-  const alarm = useMemo(() => {
-    if (typeof window !== "undefined") {
-      return new Audio("music/alarmSound.wav");
-    }
-    return null; // Return null if window is undefined
-  }, []);
+
   useEffect(() => {
     if (isRunning && time > 0) {
       const interval = setInterval(() => {
@@ -46,9 +41,10 @@ export default function Home() {
     } else if (time === 0) {
       if (alarm) {
         alarm.play();
-        setIsAlarmPlaying(true);
-        setIsRunning(false);
+        alarm.loop = true;
       }
+      setIsAlarmPlaying(true);
+      setIsRunning(false);
     }
   }, [isRunning, time, alarm]);
 
@@ -67,8 +63,8 @@ export default function Home() {
         alarm.play();
         alarm.loop = true;
       }
+      setIsAlarmPlaying(!isAlarmPlaying);
     }
-    setIsAlarmPlaying(!isAlarmPlaying);
   };
   const toggleIsRunning = () => {
     setIsRunning(!isRunning);
